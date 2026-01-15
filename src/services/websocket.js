@@ -30,6 +30,9 @@ class WebSocketService {
       return
     }
 
+    // Configurar listeners ANTES de conectar
+    this.setupEventListeners()
+
     this.socket = io(WS_BASE_URL, {
       query: {
         token,
@@ -38,15 +41,44 @@ class WebSocketService {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      autoConnect: true,
+    })
+
+    // Listener para resultado de autenticación
+    this.socket.on('auth-result', (data) => {
+      console.log('🔐 [WS] Resultado de autenticación:', data)
+      if (data.success) {
+        console.log('✅ [WS] Autenticación exitosa como:', data.user?.rol || data.userType)
+        // Después de autenticarse, unirse al dashboard
+        setTimeout(() => {
+          if (this.socket?.connected && this.socket.id) {
+            console.log('🔗 [WS] Uniéndose al dashboard...')
+            this.socket.emit('unirse-dashboard')
+          }
+        }, 200)
+        this.emit('authenticated', data)
+      } else {
+        console.error('❌ [WS] Error en autenticación:', data.message)
+        this.emit('auth-error', data)
+      }
     })
 
     this.socket.on('connect', () => {
-      console.log('✅ WebSocket conectado:', this.socket.id)
+      const socketId = this.socket.id
+      console.log('✅ WebSocket conectado:', socketId)
       this.isConnected = true
-      this.emit('connected', { socketId: this.socket.id })
       
-      // Unirse al dashboard de administración automáticamente
-      this.socket.emit('unirse-dashboard')
+      // Autenticarse automáticamente con el token
+      const token = getToken()
+      if (token) {
+        console.log('🔐 [WS] Autenticando como admin...')
+        // Intentar autenticar como cajero primero (admins también pueden usar auth-cajero)
+        this.socket.emit('auth-cajero', { token })
+      } else {
+        console.warn('⚠️ [WS] No hay token para autenticación')
+      }
+      
+      this.emit('connected', { socketId })
     })
 
     this.socket.on('disconnect', (reason) => {
@@ -57,11 +89,14 @@ class WebSocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('❌ Error conectando WebSocket:', error)
+      this.isConnected = false
       this.emit('error', { error: error.message })
     })
 
-    // Escuchar eventos del servidor
-    this.setupEventListeners()
+    this.socket.on('error', (error) => {
+      console.error('❌ Error en WebSocket:', error)
+      this.emit('error', { error: error.message || error })
+    })
   }
 
   /**
@@ -72,7 +107,8 @@ class WebSocketService {
 
     // Evento de actualización de estado completo (emitido al room admin-dashboard)
     this.socket.on('estado-actualizado', (data) => {
-      console.log('📊 Estado actualizado recibido:', data)
+      console.log('📊 [WS] Estado actualizado recibido:', data)
+      console.log('📊 [WS] Estadísticas:', data?.estadisticas)
       this.emit('estado-actualizado', data)
     })
 
@@ -104,6 +140,12 @@ class WebSocketService {
     // Respuesta a obtener-estadisticas
     this.socket.on('estadisticas', (data) => {
       this.emit('estadisticas', data)
+    })
+
+    // Respuesta a unirse-dashboard
+    this.socket.on('dashboard-conectado', (data) => {
+      console.log('✅ [WS] Dashboard conectado:', data)
+      this.emit('dashboard-conectado', data)
     })
   }
 

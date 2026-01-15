@@ -89,6 +89,14 @@ export const login = async (email, password) => {
  */
 export const logout = () => {
   removeToken()
+  
+  // Desconectar WebSocket al cerrar sesión
+  // Importación dinámica para evitar dependencia circular
+  import('./websocket').then(module => {
+    module.default.disconnect()
+  }).catch(() => {
+    // Si hay error, no hacer nada
+  })
 }
 
 /**

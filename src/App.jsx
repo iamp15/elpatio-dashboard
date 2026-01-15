@@ -15,16 +15,13 @@ function ProtectedRoute({ children }) {
 function App() {
   useEffect(() => {
     // Conectar WebSocket si está autenticado
-    if (isAuthenticated()) {
+    // No desconectamos aquí porque queremos mantener la conexión activa
+    // mientras el usuario esté autenticado
+    if (isAuthenticated() && !webSocketService.getConnectionState().isConnected) {
       webSocketService.connect()
     }
 
-    // Limpiar conexión WebSocket al desmontar
-    return () => {
-      if (isAuthenticated()) {
-        webSocketService.disconnect()
-      }
-    }
+    // No desconectamos aquí - dejamos que se desconecte solo al cerrar sesión
   }, [])
 
   return (

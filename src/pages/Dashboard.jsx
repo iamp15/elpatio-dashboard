@@ -30,10 +30,11 @@ function Dashboard() {
 
     // Listener para actualizaciones de estado en tiempo real
     const handleEstadoActualizado = (estado) => {
-      console.log('🔄 Actualización en tiempo real recibida:', estado)
+      console.log('🔄 [Dashboard] Actualización en tiempo real recibida:', estado)
+      console.log('🔄 [Dashboard] Estadísticas recibidas:', estado?.estadisticas)
+      
       if (estado?.estadisticas) {
-        // Actualizar estadísticas de conexión
-        setConnectionStats({
+        const nuevasStats = {
           conexiones: {
             totalConexiones: estado.estadisticas.totalConexiones || 0,
             jugadoresConectados: estado.estadisticas.jugadoresConectados || 0,
@@ -44,15 +45,29 @@ function Dashboard() {
             cajerosOcupados: estado.estadisticas.cajerosOcupados || 0,
             transaccionesActivas: estado.estadisticas.transaccionesActivas || 0,
           },
-        })
+        }
+        
+        console.log('🔄 [Dashboard] Actualizando connectionStats con:', nuevasStats)
+        setConnectionStats(prev => ({
+          ...prev,
+          ...nuevasStats,
+        }))
+        
+        // También recargar estadísticas globales para asegurar sincronización
+        console.log('🔄 [Dashboard] Recargando datos completos...')
+        loadData()
+      } else {
+        console.warn('⚠️ [Dashboard] Estado recibido sin estadísticas:', estado)
       }
     }
 
     // Listener para cuando se conecta al dashboard
     const handleDashboardConectado = (data) => {
       console.log('✅ Conectado al dashboard:', data)
+      setWsConnected(true)
       if (data?.estado?.estadisticas) {
-        setConnectionStats({
+        setConnectionStats(prev => ({
+          ...prev,
           conexiones: {
             totalConexiones: data.estado.estadisticas.totalConexiones || 0,
             jugadoresConectados: data.estado.estadisticas.jugadoresConectados || 0,
@@ -63,19 +78,53 @@ function Dashboard() {
             cajerosOcupados: data.estado.estadisticas.cajerosOcupados || 0,
             transaccionesActivas: data.estado.estadisticas.transaccionesActivas || 0,
           },
-        })
+        }))
+        // Recargar datos para sincronizar
+        loadData()
       }
+    }
+
+    // Actualizar estado de conexión
+    const handleConnected = () => {
+      setWsConnected(true)
+      // La autenticación y unirse al dashboard se hace automáticamente en websocket.js
+    }
+
+    // Manejar autenticación exitosa
+    const handleAuthenticated = (data) => {
+      console.log('✅ [Dashboard] Autenticación exitosa:', data)
+      // El servicio WebSocket se unirá automáticamente al dashboard después de autenticarse
+    }
+
+    // Manejar error de autenticación
+    const handleAuthError = (error) => {
+      console.error('❌ [Dashboard] Error de autenticación:', error)
+      setWsConnected(false)
     }
 
     // Registrar listeners
     webSocketService.on('estado-actualizado', handleEstadoActualizado)
     webSocketService.on('dashboard-conectado', handleDashboardConectado)
+    webSocketService.on('connected', handleConnected)
+    webSocketService.on('authenticated', handleAuthenticated)
+    webSocketService.on('auth-error', handleAuthError)
     webSocketService.on('disconnected', () => setWsConnected(false))
+
+    // Polling de respaldo cada 30 segundos si WebSocket no está conectado
+    const pollingInterval = setInterval(() => {
+      if (!webSocketService.getConnectionState().isConnected) {
+        loadData()
+      }
+    }, 30000)
 
     // Limpieza
     return () => {
       webSocketService.off('estado-actualizado', handleEstadoActualizado)
       webSocketService.off('dashboard-conectado', handleDashboardConectado)
+      webSocketService.off('connected', handleConnected)
+      webSocketService.off('authenticated', handleAuthenticated)
+      webSocketService.off('auth-error', handleAuthError)
+      clearInterval(pollingInterval)
     }
   }, [])
 
