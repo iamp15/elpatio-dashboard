@@ -1,0 +1,187 @@
+.configuracion-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: var(--patio-marron-madera);
+  margin: 0 0 10px 0;
+}
+
+.page-subtitle {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: 1em;
+}
+
+.configuracion-loading,
+.configuracion-error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.configuracion-error {
+  background-color: var(--patio-rojo-suave);
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.configuracion-error p {
+  color: var(--patio-rojo-ladrillo-oscuro);
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-secondary);
+  font-size: 1.1em;
+}
+
+.config-categoria {
+  margin-bottom: 40px;
+}
+
+.categoria-title {
+  color: var(--patio-marron-madera);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--patio-verde-pasto);
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.config-card {
+  background-color: var(--patio-blanco-nube);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.config-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.config-clave {
+  font-size: 1.1em;
+  color: var(--patio-marron-madera);
+  margin: 0;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.config-badge-readonly {
+  background-color: var(--patio-gris-piedra);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.config-descripcion {
+  color: var(--color-text-secondary);
+  font-size: 0.9em;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.config-valor-container {
+  margin-bottom: 15px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.config-valor,
+.config-valor-readonly {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--patio-verde-pasto);
+  padding: 8px 12px;
+  background-color: var(--patio-verde-suave);
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.config-valor-readonly {
+  background-color: #f5f5f5;
+  color: var(--color-text-secondary);
+}
+
+.config-input-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.config-input {
+  padding: 10px 12px;
+  border: 2px solid var(--patio-gris-piedra);
+  border-radius: 5px;
+  font-size: 1em;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+.config-input:focus {
+  outline: none;
+  border-color: var(--patio-verde-pasto);
+}
+
+.config-input-error {
+  border-color: var(--patio-rojo-ladrillo);
+}
+
+.config-rango-hint {
+  font-size: 0.85em;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.config-error-message {
+  font-size: 0.85em;
+  color: var(--patio-rojo-ladrillo-oscuro);
+  font-weight: 600;
+}
+
+.config-acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .configuracion-page {
+    padding: 15px;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .config-card {
+    padding: 15px;
+  }
+}

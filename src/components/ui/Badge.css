@@ -1,0 +1,54 @@
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-default {
+  background-color: var(--patio-gris-piedra);
+  color: white;
+}
+
+.badge-success {
+  background-color: var(--patio-verde-pasto);
+  color: white;
+}
+
+.badge-warning {
+  background-color: var(--patio-amarillo-sol);
+  color: #333;
+}
+
+.badge-danger {
+  background-color: var(--patio-rojo-ladrillo);
+  color: white;
+}
+
+.badge-info {
+  background-color: var(--patio-azul-cielo);
+  color: white;
+}
+
+.badge-pending {
+  background-color: var(--patio-amarillo-sol);
+  color: #333;
+}
+
+.badge-completed {
+  background-color: var(--patio-verde-pasto);
+  color: white;
+}
+
+.badge-cancelled {
+  background-color: var(--patio-gris-piedra);
+  color: white;
+}
+
+.badge-rejected {
+  background-color: var(--patio-rojo-ladrillo);
+  color: white;
+}
