@@ -2,10 +2,43 @@
   padding: var(--spacing-xl);
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .dashboard h1 {
   color: var(--patio-texto-principal);
-  margin-bottom: var(--spacing-xl);
+  margin: 0;
   font-size: 2rem;
+}
+
+.ws-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: var(--patio-texto-secundario);
+}
+
+.ws-indicator {
+  font-size: 1.2em;
+}
+
+.ws-text {
+  font-weight: 500;
+}
+
+.ws-connected .ws-text {
+  color: var(--patio-verde-pasto);
+}
+
+.ws-disconnected .ws-text {
+  color: var(--patio-gris-piedra);
 }
 
 .dashboard-grid {

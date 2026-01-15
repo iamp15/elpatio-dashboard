@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getTransacciones, getTransaccionesEnCurso, getTransaccionDetalles } from '../services/api'
+import webSocketService from '../services/websocket'
 import Table from '../components/ui/Table'
 import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
@@ -38,12 +39,43 @@ function Transacciones() {
   useEffect(() => {
     cargarTransacciones()
     
-    // Auto-refresh cada 30 segundos si está en la pestaña "en-curso"
-    if (activeTab === 'en-curso') {
-      const interval = setInterval(cargarTransacciones, 30000)
-      return () => clearInterval(interval)
+    // Auto-refresh cada 30 segundos si está en la pestaña "en-curso" (fallback si no hay WebSocket)
+    let interval = null
+    if (activeTab === 'en-curso' && !webSocketService.getConnectionState().isConnected) {
+      interval = setInterval(cargarTransacciones, 30000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
     }
   }, [activeTab, filtros])
+
+  useEffect(() => {
+    // Escuchar actualizaciones en tiempo real para transacciones
+    if (activeTab === 'en-curso' && webSocketService.getConnectionState().isConnected) {
+      const handleEstadoActualizado = (estado) => {
+        // Recargar transacciones en curso cuando hay actualizaciones
+        if (estado?.estadisticas?.transaccionesActivas !== undefined) {
+          cargarTransacciones()
+        }
+      }
+
+      const handleTransactionUpdate = (data) => {
+        // Recargar cuando hay actualización específica de transacción
+        if (activeTab === 'en-curso') {
+          cargarTransacciones()
+        }
+      }
+
+      webSocketService.on('estado-actualizado', handleEstadoActualizado)
+      webSocketService.on('transaction-update', handleTransactionUpdate)
+
+      return () => {
+        webSocketService.off('estado-actualizado', handleEstadoActualizado)
+        webSocketService.off('transaction-update', handleTransactionUpdate)
+      }
+    }
+  }, [activeTab])
 
   const cargarTransacciones = async () => {
     try {

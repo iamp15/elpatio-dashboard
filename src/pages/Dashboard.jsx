@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getStatsGlobales, getConnectionStats } from '../services/api'
+import webSocketService from '../services/websocket'
 import Card from '../components/ui/Card'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import './Dashboard.css'
@@ -9,14 +10,73 @@ function Dashboard() {
   const [connectionStats, setConnectionStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [wsConnected, setWsConnected] = useState(false)
 
   useEffect(() => {
+    // Cargar datos iniciales
     loadData()
-    
-    // Actualizar cada 30 segundos
-    const interval = setInterval(loadData, 30000)
-    
-    return () => clearInterval(interval)
+
+    // Conectar WebSocket
+    if (webSocketService.getConnectionState().isConnected) {
+      webSocketService.unirseDashboard()
+      setWsConnected(true)
+    } else {
+      webSocketService.connect()
+      webSocketService.on('connected', () => {
+        webSocketService.unirseDashboard()
+        setWsConnected(true)
+      })
+    }
+
+    // Listener para actualizaciones de estado en tiempo real
+    const handleEstadoActualizado = (estado) => {
+      console.log('🔄 Actualización en tiempo real recibida:', estado)
+      if (estado?.estadisticas) {
+        // Actualizar estadísticas de conexión
+        setConnectionStats({
+          conexiones: {
+            totalConexiones: estado.estadisticas.totalConexiones || 0,
+            jugadoresConectados: estado.estadisticas.jugadoresConectados || 0,
+            cajerosConectados: estado.estadisticas.cajerosConectados || 0,
+          },
+          detalles: {
+            cajerosDisponibles: estado.estadisticas.cajerosDisponibles || 0,
+            cajerosOcupados: estado.estadisticas.cajerosOcupados || 0,
+            transaccionesActivas: estado.estadisticas.transaccionesActivas || 0,
+          },
+        })
+      }
+    }
+
+    // Listener para cuando se conecta al dashboard
+    const handleDashboardConectado = (data) => {
+      console.log('✅ Conectado al dashboard:', data)
+      if (data?.estado?.estadisticas) {
+        setConnectionStats({
+          conexiones: {
+            totalConexiones: data.estado.estadisticas.totalConexiones || 0,
+            jugadoresConectados: data.estado.estadisticas.jugadoresConectados || 0,
+            cajerosConectados: data.estado.estadisticas.cajerosConectados || 0,
+          },
+          detalles: {
+            cajerosDisponibles: data.estado.estadisticas.cajerosDisponibles || 0,
+            cajerosOcupados: data.estado.estadisticas.cajerosOcupados || 0,
+            transaccionesActivas: data.estado.estadisticas.transaccionesActivas || 0,
+          },
+        })
+      }
+    }
+
+    // Registrar listeners
+    webSocketService.on('estado-actualizado', handleEstadoActualizado)
+    webSocketService.on('dashboard-conectado', handleDashboardConectado)
+    webSocketService.on('disconnected', () => setWsConnected(false))
+
+    // Limpieza
+    return () => {
+      webSocketService.off('estado-actualizado', handleEstadoActualizado)
+      webSocketService.off('dashboard-conectado', handleDashboardConectado)
+    }
   }, [])
 
   const loadData = async () => {
@@ -67,7 +127,17 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <h1>Dashboard</h1>
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <div className="ws-status">
+          <span className={`ws-indicator ${wsConnected ? 'ws-connected' : 'ws-disconnected'}`}>
+            {wsConnected ? '🟢' : '🔴'}
+          </span>
+          <span className="ws-text">
+            {wsConnected ? 'Tiempo real activo' : 'Tiempo real desconectado'}
+          </span>
+        </div>
+      </div>
       
       <div className="dashboard-grid">
         <Card title="Total Jugadores" value={stats?.jugadores || 0} icon="👥" />

@@ -31,7 +31,7 @@ class WebSocketService {
     }
 
     this.socket = io(WS_BASE_URL, {
-      auth: {
+      query: {
         token,
       },
       transports: ['websocket', 'polling'],
@@ -44,6 +44,9 @@ class WebSocketService {
       console.log('✅ WebSocket conectado:', this.socket.id)
       this.isConnected = true
       this.emit('connected', { socketId: this.socket.id })
+      
+      // Unirse al dashboard de administración automáticamente
+      this.socket.emit('unirse-dashboard')
     })
 
     this.socket.on('disconnect', (reason) => {
@@ -67,6 +70,12 @@ class WebSocketService {
   setupEventListeners() {
     if (!this.socket) return
 
+    // Evento de actualización de estado completo (emitido al room admin-dashboard)
+    this.socket.on('estado-actualizado', (data) => {
+      console.log('📊 Estado actualizado recibido:', data)
+      this.emit('estado-actualizado', data)
+    })
+
     // Evento de actualización de estadísticas
     this.socket.on('stats-update', (data) => {
       this.emit('stats-update', data)
@@ -85,6 +94,16 @@ class WebSocketService {
     // Evento genérico de notificación
     this.socket.on('notification', (data) => {
       this.emit('notification', data)
+    })
+
+    // Respuesta a obtener-estado-completo
+    this.socket.on('estado-completo', (data) => {
+      this.emit('estado-completo', data)
+    })
+
+    // Respuesta a obtener-estadisticas
+    this.socket.on('estadisticas', (data) => {
+      this.emit('estadisticas', data)
     })
   }
 
@@ -109,6 +128,27 @@ class WebSocketService {
     } else {
       console.warn(`⚠️ Intentando emitir "${event}" pero WebSocket no está conectado`)
     }
+  }
+
+  /**
+   * Solicitar estado completo del sistema
+   */
+  solicitarEstadoCompleto() {
+    this.emitToServer('obtener-estado-completo')
+  }
+
+  /**
+   * Solicitar solo estadísticas
+   */
+  solicitarEstadisticas() {
+    this.emitToServer('obtener-estadisticas')
+  }
+
+  /**
+   * Unirse al dashboard de administración
+   */
+  unirseDashboard() {
+    this.emitToServer('unirse-dashboard')
   }
 
   /**

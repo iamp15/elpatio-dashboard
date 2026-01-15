@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -5,12 +6,27 @@ import Transacciones from './pages/Transacciones'
 import Configuracion from './pages/Configuracion'
 import MainLayout from './components/layout/MainLayout'
 import { isAuthenticated } from './services/auth'
+import webSocketService from './services/websocket'
 
 function ProtectedRoute({ children }) {
   return isAuthenticated() ? children : <Navigate to="/login" replace />
 }
 
 function App() {
+  useEffect(() => {
+    // Conectar WebSocket si está autenticado
+    if (isAuthenticated()) {
+      webSocketService.connect()
+    }
+
+    // Limpiar conexión WebSocket al desmontar
+    return () => {
+      if (isAuthenticated()) {
+        webSocketService.disconnect()
+      }
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <Routes>
