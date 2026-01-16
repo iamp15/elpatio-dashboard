@@ -34,11 +34,15 @@ function Dashboard() {
       console.log('🔄 [Dashboard] Estadísticas recibidas:', estado?.estadisticas)
       
       if (estado?.estadisticas) {
+        // Calcular cajeros conectados como la suma de disponibles + ocupados
+        const cajerosConectados = (estado.estadisticas.cajerosDisponibles || 0) + 
+                                  (estado.estadisticas.cajerosOcupados || 0)
+        
         const nuevasStats = {
           conexiones: {
             totalConexiones: estado.estadisticas.totalConexiones || 0,
             jugadoresConectados: estado.estadisticas.jugadoresConectados || 0,
-            cajerosConectados: estado.estadisticas.cajerosConectados || 0,
+            cajerosConectados: cajerosConectados,
           },
           detalles: {
             cajerosDisponibles: estado.estadisticas.cajerosDisponibles || 0,
@@ -48,14 +52,11 @@ function Dashboard() {
         }
         
         console.log('🔄 [Dashboard] Actualizando connectionStats con:', nuevasStats)
-        setConnectionStats(prev => ({
-          ...prev,
-          ...nuevasStats,
-        }))
+        // Actualizar directamente sin merge para evitar valores intermedios incorrectos
+        setConnectionStats(nuevasStats)
         
-        // También recargar estadísticas globales para asegurar sincronización
-        console.log('🔄 [Dashboard] Recargando datos completos...')
-        loadData()
+        // NO llamar loadData() aquí porque puede causar valores desactualizados
+        // Los datos de WebSocket son la fuente de verdad en tiempo real
       } else {
         console.warn('⚠️ [Dashboard] Estado recibido sin estadísticas:', estado)
       }
@@ -66,21 +67,23 @@ function Dashboard() {
       console.log('✅ Conectado al dashboard:', data)
       setWsConnected(true)
       if (data?.estado?.estadisticas) {
-        setConnectionStats(prev => ({
-          ...prev,
+        // Calcular cajeros conectados como la suma de disponibles + ocupados
+        const cajerosConectados = (data.estado.estadisticas.cajerosDisponibles || 0) + 
+                                  (data.estado.estadisticas.cajerosOcupados || 0)
+        
+        setConnectionStats({
           conexiones: {
             totalConexiones: data.estado.estadisticas.totalConexiones || 0,
             jugadoresConectados: data.estado.estadisticas.jugadoresConectados || 0,
-            cajerosConectados: data.estado.estadisticas.cajerosConectados || 0,
+            cajerosConectados: cajerosConectados,
           },
           detalles: {
             cajerosDisponibles: data.estado.estadisticas.cajerosDisponibles || 0,
             cajerosOcupados: data.estado.estadisticas.cajerosOcupados || 0,
             transaccionesActivas: data.estado.estadisticas.transaccionesActivas || 0,
           },
-        }))
-        // Recargar datos para sincronizar
-        loadData()
+        })
+        // NO llamar loadData() aquí, los datos del WebSocket son la fuente de verdad
       }
     }
 
