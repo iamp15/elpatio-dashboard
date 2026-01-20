@@ -1,0 +1,580 @@
+---
+description: Convenciones y estándares específicos para el Dashboard de El Patio, con énfasis en modularidad y separación de responsabilidades
+globs: ["elpatio-dashboard/**/*.jsx", "elpatio-dashboard/**/*.js", "elpatio-dashboard/**/*.css"]
+alwaysApply: false
+---
+
+# Dashboard - El Patio - Convenciones de Modularidad
+
+## 🎯 Principio Fundamental: Modularidad y Separación de Responsabilidades
+
+**La modularidad es la base de un código mantenible y escalable.** Este documento establece reglas estrictas para evitar archivos monolíticos y asegurar que cada módulo tenga una única responsabilidad clara y bien definida.
+
+## ⚠️ Reglas Críticas de Modularidad
+
+### 1. Límite de Tamaño de Archivos
+
+- **LÍMITE ABSOLUTO: 400 líneas por archivo** (incluyendo comentarios y espacios en blanco)
+- **LÍMITE RECOMENDADO: 250 líneas por archivo**
+- Si un archivo supera las 400 líneas, **DEBE dividirse inmediatamente**
+- No hay excepciones a esta regla - es obligatoria
+
+### 2. Responsabilidad Única
+
+**Cada archivo debe tener UNA y SOLO UNA responsabilidad:**
+
+- ❌ **NO** mezclar lógica de negocio con lógica de presentación
+- ❌ **NO** combinar manejo de estado con llamadas a API
+- ❌ **NO** incluir múltiples utilidades no relacionadas
+- ❌ **NO** tener componentes que manejen varios contextos diferentes
+- ✅ **SÍ** crear un archivo separado para cada responsabilidad
+- ✅ **SÍ** usar composición para combinar funcionalidades
+
+### 3. Estructura Modular Obligatoria
+
+Cada módulo debe seguir esta estructura estricta:
+
+```
+modulo/
+├── componentes/        # Componentes React (uno por archivo)
+│   ├── ComponenteA.jsx
+│   ├── ComponenteA.css
+│   ├── ComponenteB.jsx
+│   └── ComponenteB.css
+├── hooks/             # Custom hooks (uno por archivo)
+│   ├── useCustomHook.js
+│   └── useAnotherHook.js
+├── servicios/         # Servicios y API (uno por responsabilidad)
+│   ├── servicioA.js
+│   └── servicioB.js
+├── utilidades/        # Funciones de utilidad (agrupadas por propósito)
+│   ├── formatters.js  # Solo funciones de formateo
+│   ├── validators.js  # Solo funciones de validación
+│   └── constants.js   # Solo constantes
+└── tipos/             # Tipos TypeScript (si aplica)
+    └── tipos.ts
+```
+
+## 📋 Estructura del Proyecto Dashboard
+
+```
+elpatio-dashboard/
+├── src/
+│   ├── components/        # Componentes reutilizables
+│   │   ├── layout/       # Componentes de layout
+│   │   │   ├── MainLayout.jsx
+│   │   │   └── MainLayout.css
+│   │   └── ui/           # Componentes UI básicos
+│   │       ├── Badge.jsx
+│   │       ├── Badge.css
+│   │       ├── Button.jsx
+│   │       └── Button.css
+│   ├── pages/            # Páginas de la aplicación
+│   │   ├── Dashboard.jsx
+│   │   ├── Dashboard.css
+│   │   └── [otras-paginas]
+│   ├── hooks/            # Custom React hooks
+│   │   ├── useWebSocket.js
+│   │   ├── useStats.js
+│   │   └── useAuth.js
+│   ├── services/         # Servicios externos
+│   │   ├── api.js        # Llamadas a API REST
+│   │   ├── auth.js       # Servicio de autenticación
+│   │   └── websocket.js  # Servicio de WebSocket
+│   ├── utils/            # Funciones de utilidad
+│   │   ├── formatters.js # Formateo de datos
+│   │   ├── validators.js # Validaciones
+│   │   └── constants.js  # Constantes compartidas
+│   └── App.jsx           # Componente raíz
+```
+
+## 🧩 Componentes React
+
+### Reglas para Componentes
+
+1. **Un componente por archivo**
+   - Cada componente debe estar en su propio archivo
+   - El nombre del archivo debe coincidir con el nombre del componente (PascalCase)
+
+2. **Tamaño máximo de componente: 300 líneas**
+   - Si un componente supera 300 líneas, debe dividirse:
+     - Extraer subcomponentes
+     - Mover lógica a custom hooks
+     - Mover lógica de negocio a servicios
+
+3. **Separación de responsabilidades en componentes**
+   - **Presentación**: Solo renderizado y UI
+   - **Lógica**: Extraer a hooks o servicios
+   - **Estado local**: Solo para estado específico del componente
+   - **Estado global**: Usar hooks o context API
+
+### Patrón de Componente Modular
+
+```jsx
+// ✅ BIEN: Componente pequeño y enfocado
+import { useState } from 'react'
+import { formatCurrency } from '../../utils/formatters'
+import Card from '../ui/Card'
+import './DashboardCard.css'
+
+/**
+ * Componente para mostrar una tarjeta de estadística
+ * @param {Object} props
+ * @param {string} props.title - Título de la tarjeta
+ * @param {number} props.value - Valor a mostrar
+ * @param {string} props.icon - Icono emoji
+ */
+function DashboardCard({ title, value, icon }) {
+  return (
+    <Card className="dashboard-card">
+      <div className="dashboard-card-icon">{icon}</div>
+      <div className="dashboard-card-content">
+        <h3>{title}</h3>
+        <p className="dashboard-card-value">{formatCurrency(value)}</p>
+      </div>
+    </Card>
+  )
+}
+
+export default DashboardCard
+```
+
+### ❌ Anti-Patrones a Evitar
+
+```jsx
+// ❌ MAL: Componente que hace demasiado
+function Dashboard() {
+  // ❌ Maneja carga de datos
+  const loadData = async () => { /* ... */ }
+  
+  // ❌ Maneja WebSocket
+  const setupWebSocket = () => { /* ... */ }
+  
+  // ❌ Formatea datos
+  const formatCurrency = (amount) => { /* ... */ }
+  
+  // ❌ Valida datos
+  const validateData = (data) => { /* ... */ }
+  
+  // ❌ Maneja múltiples estados
+  const [stats, setStats] = useState(null)
+  const [connection, setConnection] = useState(null)
+  const [errors, setErrors] = useState(null)
+  // ... muchos más estados
+  
+  // ❌ Renderiza mucho JSX
+  return (
+    <div>
+      {/* Mucho código JSX */}
+    </div>
+  )
+}
+
+// ✅ BIEN: Componente dividido en módulos más pequeños
+// Dashboard.jsx - Solo orquestación
+// useDashboardData.js - Hook para carga de datos
+// useWebSocketConnection.js - Hook para WebSocket
+// DashboardStats.jsx - Componente para estadísticas
+// DashboardConnection.jsx - Componente para estado de conexión
+```
+
+## 🎣 Custom Hooks
+
+### Cuándo Crear un Custom Hook
+
+Crear un custom hook cuando:
+- ✅ La misma lógica se reutiliza en múltiples componentes
+- ✅ Un componente tiene más de 3 `useState` o `useEffect`
+- ✅ Hay lógica compleja que debe separarse del componente
+- ✅ Se necesita abstraer llamadas a API o servicios
+
+### Patrón de Custom Hook
+
+```jsx
+// hooks/useDashboardStats.js
+import { useState, useEffect } from 'react'
+import { getStatsGlobales } from '../services/api'
+
+/**
+ * Hook para obtener y gestionar estadísticas del dashboard
+ * @returns {Object} Estado y funciones relacionadas con estadísticas
+ */
+export function useDashboardStats() {
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  const loadStats = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await getStatsGlobales()
+      setStats(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return {
+    stats,
+    loading,
+    error,
+    refetch: loadStats,
+  }
+}
+```
+
+### Reglas para Hooks
+
+1. **Un hook por archivo**
+2. **Tamaño máximo: 200 líneas**
+3. **Responsabilidad única**: Un hook debe hacer una cosa
+4. **Nombre descriptivo**: Prefijo `use` seguido de propósito claro
+
+## 🔧 Servicios
+
+### Estructura de Servicios
+
+Los servicios deben:
+- ✅ Ser funciones puras o clases con métodos específicos
+- ✅ NO tener lógica de presentación
+- ✅ NO tener dependencias de React
+- ✅ Retornar datos, no componentes
+
+### Patrón de Servicio
+
+```jsx
+// services/api.js
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
+/**
+ * Servicio para obtener estadísticas globales
+ * @returns {Promise<Object>} Estadísticas del sistema
+ */
+export async function getStatsGlobales() {
+  const response = await fetch(`${API_BASE_URL}/api/admin/stats`)
+  
+  if (!response.ok) {
+    throw new Error('Error al obtener estadísticas')
+  }
+  
+  return response.json()
+}
+
+/**
+ * Servicio para obtener estadísticas de conexión
+ * @returns {Promise<Object>} Estadísticas de conexión
+ */
+export async function getConnectionStats() {
+  const response = await fetch(`${API_BASE_URL}/api/admin/connection-stats`)
+  
+  if (!response.ok) {
+    throw new Error('Error al obtener estadísticas de conexión')
+  }
+  
+  return response.json()
+}
+```
+
+### Reglas para Servicios
+
+1. **Un servicio por responsabilidad**
+   - `api.js` - Solo llamadas a API REST
+   - `auth.js` - Solo autenticación
+   - `websocket.js` - Solo WebSocket
+2. **Tamaño máximo: 300 líneas**
+3. **Funciones pequeñas**: Cada función debe hacer una cosa
+4. **Sin dependencias de UI**: No importar componentes React
+
+## 🛠️ Utilidades
+
+### Estructura de Utilidades
+
+Las utilidades deben:
+- ✅ Ser funciones puras (sin efectos secundarios)
+- ✅ Estar agrupadas por propósito
+- ✅ Ser fácilmente testeable
+- ✅ No depender de React o servicios externos
+
+### Patrón de Utilidades
+
+```jsx
+// utils/formatters.js
+/**
+ * Formatea un monto en centavos como moneda venezolana
+ * @param {number} amount - Monto en centavos
+ * @returns {string} Monto formateado
+ */
+export function formatCurrency(amount) {
+  return new Intl.NumberFormat('es-VE', {
+    style: 'currency',
+    currency: 'VES',
+    minimumFractionDigits: 2,
+  }).format(amount / 100)
+}
+
+/**
+ * Formatea una fecha como string legible
+ * @param {Date|string} date - Fecha a formatear
+ * @returns {string} Fecha formateada
+ */
+export function formatDate(date) {
+  return new Intl.DateTimeFormat('es-VE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(date))
+}
+```
+
+```jsx
+// utils/validators.js
+/**
+ * Valida que un email tenga formato válido
+ * @param {string} email - Email a validar
+ * @returns {boolean} true si es válido
+ */
+export function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+```
+
+### Reglas para Utilidades
+
+1. **Agrupar por propósito**: Todas las funciones relacionadas en un archivo
+2. **Tamaño máximo: 200 líneas por archivo de utilidades**
+3. **Funciones pequeñas**: Cada función debe ser menor a 50 líneas
+4. **Exportación nombrada**: Usar `export function` en lugar de default
+
+## 📄 Páginas
+
+### Estructura de Páginas
+
+Las páginas deben:
+- ✅ Ser principalmente componentes de orquestación
+- ✅ Usar hooks para lógica
+- ✅ Usar componentes más pequeños para UI
+- ✅ Mantener mínimo estado local
+
+### Patrón de Página Modular
+
+```jsx
+// pages/Dashboard.jsx
+import { useDashboardStats } from '../hooks/useDashboardStats'
+import { useWebSocketConnection } from '../hooks/useWebSocketConnection'
+import DashboardStats from '../components/dashboard/DashboardStats'
+import DashboardConnection from '../components/dashboard/DashboardConnection'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
+import './Dashboard.css'
+
+/**
+ * Página principal del dashboard
+ * Componente de orquestación que combina hooks y componentes
+ */
+function Dashboard() {
+  const { stats, loading, error, refetch } = useDashboardStats()
+  const { isConnected, connectionStats } = useWebSocketConnection()
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-error">
+        <p>❌ Error: {error}</p>
+        <button onClick={refetch}>Reintentar</button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="dashboard">
+      <DashboardStats stats={stats} />
+      <DashboardConnection 
+        isConnected={isConnected} 
+        connectionStats={connectionStats} 
+      />
+    </div>
+  )
+}
+
+export default Dashboard
+```
+
+### Reglas para Páginas
+
+1. **Tamaño máximo: 250 líneas**
+2. **Composición sobre lógica**: Usar componentes e hooks, no implementar todo
+3. **Mínimo estado local**: Preferir hooks personalizados
+4. **Separar estilos**: Cada página debe tener su archivo CSS
+
+## 🔍 Checklist de Modularidad
+
+Antes de considerar un archivo completo, verificar:
+
+- [ ] ¿El archivo tiene menos de 400 líneas?
+- [ ] ¿Tiene una sola responsabilidad clara?
+- [ ] ¿Se puede describir su propósito en una oración?
+- [ ] ¿No mezcla lógica de negocio con presentación?
+- [ ] ¿No tiene más de 3 `useState` o `useEffect` sin extraer a hooks?
+- [ ] ¿Las funciones son pequeñas y tienen un propósito único?
+- [ ] ¿Se puede reutilizar o es específico a un caso?
+
+## 🚨 Señales de Alarma: Cuándo Refactorizar
+
+Refactorizar inmediatamente si observas:
+
+1. **Archivo > 400 líneas**: Dividir en múltiples archivos
+2. **Más de 5 `useState`**: Extraer a custom hook o reducer
+3. **Más de 3 `useEffect`**: Considerar separar lógica
+4. **Funciones > 50 líneas**: Dividir en funciones más pequeñas
+5. **Componente con lógica de API**: Mover a hook o servicio
+6. **Múltiples responsabilidades**: Crear archivos separados
+7. **Código duplicado**: Extraer a utilidad o hook compartido
+8. **Imports excesivos**: Indica que el componente hace demasiado
+
+## 📦 Proceso de División de Archivos
+
+Cuando un archivo supera los límites:
+
+1. **Identificar responsabilidades**
+   - Listar todas las cosas que hace el archivo
+   - Agrupar por responsabilidad
+
+2. **Crear estructura modular**
+   - Extraer hooks → `hooks/`
+   - Extraer utilidades → `utils/`
+   - Extraer componentes → `components/`
+   - Extraer servicios → `services/`
+
+3. **Refactorizar paso a paso**
+   - Extraer una responsabilidad a la vez
+   - Probar después de cada extracción
+   - Mantener funcionalidad idéntica
+
+4. **Ejemplo de refactorización**
+
+```jsx
+// ❌ ANTES: Dashboard.jsx (400+ líneas)
+function Dashboard() {
+  // Manejo de estado
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  // ... muchos más estados
+  
+  // Lógica de carga
+  const loadData = async () => { /* ... */ }
+  
+  // Lógica de WebSocket
+  useEffect(() => { /* WebSocket setup */ }, [])
+  
+  // Formateo
+  const formatCurrency = (amount) => { /* ... */ }
+  
+  // Renderizado
+  return (/* Mucho JSX */)
+}
+
+// ✅ DESPUÉS: Estructura modular
+// Dashboard.jsx (150 líneas)
+import { useDashboardStats } from '../hooks/useDashboardStats'
+import { useWebSocketConnection } from '../hooks/useWebSocketConnection'
+import DashboardStats from '../components/dashboard/DashboardStats'
+import DashboardConnection from '../components/dashboard/DashboardConnection'
+
+function Dashboard() {
+  const { stats, loading, error } = useDashboardStats()
+  const { isConnected } = useWebSocketConnection()
+  
+  return (
+    <div>
+      <DashboardStats stats={stats} />
+      <DashboardConnection isConnected={isConnected} />
+    </div>
+  )
+}
+
+// hooks/useDashboardStats.js (80 líneas)
+export function useDashboardStats() { /* ... */ }
+
+// hooks/useWebSocketConnection.js (100 líneas)
+export function useWebSocketConnection() { /* ... */ }
+
+// components/dashboard/DashboardStats.jsx (120 líneas)
+export default function DashboardStats({ stats }) { /* ... */ }
+
+// components/dashboard/DashboardConnection.jsx (100 líneas)
+export default function DashboardConnection({ isConnected }) { /* ... */ }
+```
+
+## ✅ Buenas Prácticas
+
+1. **Pensar en módulos desde el inicio**: Diseñar con modularidad en mente
+2. **Revisar tamaño frecuentemente**: Verificar líneas de código regularmente
+3. **Refactorizar temprano**: Es más fácil cuando el código es pequeño
+4. **Usar herramientas**: ESLint y plugins pueden detectar archivos grandes
+5. **Code review enfocado**: Revisar tamaño y responsabilidades en cada PR
+6. **Documentar decisiones**: Si se excede temporalmente, documentar por qué y cuándo refactorizar
+
+## 📝 Convenciones de Nombres
+
+### Archivos y Carpetas
+
+- **Componentes**: PascalCase (`DashboardStats.jsx`)
+- **Hooks**: camelCase con prefijo `use` (`useDashboardStats.js`)
+- **Servicios**: camelCase (`api.js`, `auth.js`)
+- **Utilidades**: camelCase plural (`formatters.js`, `validators.js`)
+- **Constantes**: UPPER_SNAKE_CASE en `constants.js`
+
+### Estructura de Importaciones
+
+```jsx
+// 1. Imports de React
+import { useState, useEffect } from 'react'
+
+// 2. Imports de terceros
+import { useNavigate } from 'react-router-dom'
+
+// 3. Imports de componentes locales
+import DashboardStats from '../components/dashboard/DashboardStats'
+
+// 4. Imports de hooks
+import { useDashboardStats } from '../hooks/useDashboardStats'
+
+// 5. Imports de servicios
+import { getStatsGlobales } from '../services/api'
+
+// 6. Imports de utilidades
+import { formatCurrency } from '../utils/formatters'
+
+// 7. Imports de constantes
+import { API_BASE_URL } from '../utils/constants'
+
+// 8. Imports de estilos
+import './Dashboard.css'
+```
+
+## 🎯 Resumen de Límites
+
+| Tipo de Archivo | Límite Absoluto | Límite Recomendado |
+|----------------|-----------------|-------------------|
+| Componente React | 400 líneas | 250 líneas |
+| Página | 400 líneas | 250 líneas |
+| Custom Hook | 300 líneas | 200 líneas |
+| Servicio | 400 líneas | 300 líneas |
+| Utilidad | 300 líneas | 200 líneas |
+| Función | 100 líneas | 50 líneas |
+
+**Si cualquier archivo supera su límite absoluto, DEBE dividirse inmediatamente.**

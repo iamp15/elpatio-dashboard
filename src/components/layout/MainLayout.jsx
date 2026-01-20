@@ -1,9 +1,12 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
-import { logout, isAuthenticated } from '../../services/auth'
+import { logout, isAuthenticated, getUserInfo } from '../../services/auth'
+import { formatRole, getRoleBadgeVariant } from '../../utils/formatters'
+import Badge from '../ui/Badge'
 import './MainLayout.css'
 
 function MainLayout() {
   const navigate = useNavigate()
+  const userInfo = getUserInfo()
 
   const handleLogout = () => {
     logout()
@@ -19,7 +22,17 @@ function MainLayout() {
     <div className="main-layout">
       <header className="header">
         <div className="header-content">
-          <h1 className="logo">🏠 El Patio</h1>
+          <div className="header-left">
+            <h1 className="logo">🏠 El Patio</h1>
+            {userInfo && (
+              <div className="user-info">
+                <span className="user-email">{userInfo.email}</span>
+                <Badge variant={getRoleBadgeVariant(userInfo.rol)}>
+                  {formatRole(userInfo.rol)}
+                </Badge>
+              </div>
+            )}
+          </div>
           <nav className="nav">
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
             <Link to="/transacciones" className="nav-link">Transacciones</Link>

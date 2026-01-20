@@ -100,6 +100,26 @@ export const logout = () => {
 }
 
 /**
+ * Obtener información del usuario desde el token JWT
+ */
+export const getUserInfo = () => {
+  const token = getToken()
+  if (!token) return null
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return {
+      id: payload.id,
+      email: payload.email,
+      rol: payload.rol,
+    }
+  } catch (error) {
+    console.error('Error decodificando token:', error)
+    return null
+  }
+}
+
+/**
  * Hook de autenticación (para usar en componentes)
  */
 export const useAuth = () => {
@@ -108,5 +128,6 @@ export const useAuth = () => {
     isAuthenticated,
     login,
     logout,
+    getUserInfo,
   }
 }

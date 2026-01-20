@@ -13,14 +13,23 @@ class WebSocketService {
     this.socket = null
     this.listeners = new Map()
     this.isConnected = false
+    this.isConnecting = false // Flag para evitar múltiples conexiones simultáneas
+    this.isAuthenticating = false // Flag para evitar múltiples autenticaciones
   }
 
   /**
    * Conectar al servidor WebSocket
    */
   connect() {
+    // Si ya está conectado, no hacer nada
     if (this.socket?.connected) {
-      console.log('✅ WebSocket ya está conectado')
+      console.log('✅ [WS] Ya hay una conexión activa, reutilizando...')
+      return
+    }
+
+    // Si ya está en proceso de conexión, no crear otra
+    if (this.isConnecting) {
+      console.log('⏳ [WS] Ya hay una conexión en progreso, esperando...')
       return
     }
 
@@ -30,8 +39,18 @@ class WebSocketService {
       return
     }
 
-    // Configurar listeners ANTES de conectar
-    this.setupEventListeners()
+    // Desconectar socket anterior si existe
+    if (this.socket) {
+      console.log('🔄 [WS] Cerrando conexión anterior...')
+      this.socket.disconnect()
+      this.socket = null
+    }
+
+    // Marcar como en proceso de conexión
+    this.isConnecting = true
+    this.isAuthenticating = false
+
+    console.log(`🔗 [WS] Conectando a ${WS_BASE_URL}...`)
 
     this.socket = io(WS_BASE_URL, {
       query: {
@@ -40,61 +59,80 @@ class WebSocketService {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 2000,
       autoConnect: true,
     })
+
+    // Configurar listeners DESPUÉS de crear el socket
+    this.setupEventListeners()
 
     // Listener para resultado de autenticación
     this.socket.on('auth-result', (data) => {
       console.log('🔐 [WS] Resultado de autenticación:', data)
+      // Resetear flag de autenticación
+      this.isAuthenticating = false
+      
       if (data.success) {
         console.log('✅ [WS] Autenticación exitosa como:', data.user?.rol || data.userType)
-        // Después de autenticarse, unirse al dashboard
-        setTimeout(() => {
-          if (this.socket?.connected && this.socket.id) {
-            console.log('🔗 [WS] Uniéndose al dashboard...')
-            this.socket.emit('unirse-dashboard')
-          }
-        }, 200)
+        // Después de autenticarse, unirse al dashboard (solo una vez)
+        if (this.socket?.connected && this.socket.id) {
+          console.log('🔗 [WS] Uniéndose al dashboard...')
+          this.socket.emit('unirse-dashboard')
+        }
         this.emit('authenticated', data)
       } else {
         console.error('❌ [WS] Error en autenticación:', data.message)
         this.emit('auth-error', data)
       }
     })
+    
+    // Evento de sesión reemplazada
+    this.socket.on('session-replaced', (data) => {
+      console.log('⚠️ [WS] Sesión reemplazada:', data)
+      this.isConnected = false
+      this.isConnecting = false
+      this.isAuthenticating = false
+      this.emit('session-replaced', data)
+    })
 
     this.socket.on('connect', () => {
       const socketId = this.socket.id
-      console.log('✅ WebSocket conectado:', socketId)
+      console.log(`✅ [WS] Conectado (socket.id: ${socketId})`)
       this.isConnected = true
+      this.isConnecting = false // Ya no está en proceso de conexión
       
-      // Autenticarse automáticamente con el token
-      const token = getToken()
-      if (token) {
-        console.log('🔐 [WS] Autenticando como admin...')
-        // Intentar autenticar como cajero primero (admins también pueden usar auth-cajero)
-        this.socket.emit('auth-cajero', { token })
-      } else {
-        console.warn('⚠️ [WS] No hay token para autenticación')
+      // Autenticarse automáticamente si no está en proceso de autenticación
+      if (!this.isAuthenticating) {
+        const token = getToken()
+        if (token) {
+          console.log('🔐 [WS] Autenticando como admin...')
+          this.isAuthenticating = true
+          this.socket.emit('auth-cajero', { token })
+        } else {
+          console.warn('⚠️ [WS] No hay token para autenticación')
+        }
       }
       
       this.emit('connected', { socketId })
     })
 
     this.socket.on('disconnect', (reason) => {
-      console.log('❌ WebSocket desconectado:', reason)
+      console.log(`❌ [WS] Desconectado: ${reason}`)
       this.isConnected = false
+      this.isConnecting = false
+      this.isAuthenticating = false
       this.emit('disconnected', { reason })
     })
 
     this.socket.on('connect_error', (error) => {
-      console.error('❌ Error conectando WebSocket:', error)
+      console.error('❌ [WS] Error de conexión:', error.message)
       this.isConnected = false
+      this.isConnecting = false
       this.emit('error', { error: error.message })
     })
 
     this.socket.on('error', (error) => {
-      console.error('❌ Error en WebSocket:', error)
+      console.error('❌ [WS] Error:', error)
       this.emit('error', { error: error.message || error })
     })
   }
@@ -103,12 +141,14 @@ class WebSocketService {
    * Configurar listeners para eventos del servidor
    */
   setupEventListeners() {
-    if (!this.socket) return
+    if (!this.socket) {
+      console.warn('⚠️ [WS] No hay socket para configurar listeners')
+      return
+    }
 
     // Evento de actualización de estado completo (emitido al room admin-dashboard)
     this.socket.on('estado-actualizado', (data) => {
-      console.log('📊 [WS] Estado actualizado recibido:', data)
-      console.log('📊 [WS] Estadísticas:', data?.estadisticas)
+      console.log('📊 [WS] Estado actualizado recibido')
       this.emit('estado-actualizado', data)
     })
 
@@ -154,11 +194,14 @@ class WebSocketService {
    */
   disconnect() {
     if (this.socket) {
+      console.log('🔌 [WS] Desconectando...')
       this.socket.disconnect()
       this.socket = null
-      this.isConnected = false
-      console.log('🔌 WebSocket desconectado manualmente')
     }
+    // Resetear todos los estados
+    this.isConnected = false
+    this.isConnecting = false
+    this.isAuthenticating = false
   }
 
   /**
@@ -194,18 +237,23 @@ class WebSocketService {
   }
 
   /**
-   * Suscribirse a un evento
+   * Suscribirse a un evento interno
+   * NOTA: Los eventos se reciben via setupEventListeners() que llama a emit()
+   * NO registrar directamente en el socket para evitar duplicación
    */
   on(event, callback) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, [])
     }
-    this.listeners.get(event).push(callback)
-
-    // Si el socket ya existe, también escuchar directamente
-    if (this.socket) {
-      this.socket.on(event, callback)
+    
+    // Evitar duplicados - verificar si el callback ya está registrado
+    const listeners = this.listeners.get(event)
+    if (!listeners.includes(callback)) {
+      listeners.push(callback)
     }
+    
+    // NO registrar en this.socket.on() - ya está manejado por setupEventListeners()
+    // que llama a this.emit() para notificar a los listeners internos
   }
 
   /**
@@ -219,10 +267,7 @@ class WebSocketService {
         listeners.splice(index, 1)
       }
     }
-
-    if (this.socket) {
-      this.socket.off(event, callback)
-    }
+    // NO necesitamos remover de this.socket porque nunca lo registramos ahí
   }
 
   /**
