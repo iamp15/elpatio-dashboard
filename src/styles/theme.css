@@ -56,6 +56,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Reset de enlaces - evitar que estilos externos los afecten */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: inherit;
+}
+
 /* Utilidades de colores */
 .bg-verde-pasto {
   background-color: var(--patio-verde-pasto);

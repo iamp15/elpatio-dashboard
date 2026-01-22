@@ -38,10 +38,21 @@ function Transacciones() {
     }
   }
 
+  const handleActualizar = () => {
+    refetch()
+  }
+
   return (
     <div className="transacciones-page">
       <div className="page-header">
         <h1>Gestión de Transacciones</h1>
+        <Button
+          variant="primary"
+          onClick={handleActualizar}
+          disabled={loading}
+        >
+          {loading ? 'Actualizando...' : '🔄 Actualizar'}
+        </Button>
       </div>
 
       <TransaccionesTabs activeTab={activeTab} onTabChange={setActiveTab} />

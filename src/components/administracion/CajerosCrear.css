@@ -1,0 +1,266 @@
+/* Estilos para el formulario de crear cajero */
+
+.cajeros-crear {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* Header */
+.crear-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--patio-gris-piedra, #e0e0e0);
+}
+
+.crear-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--patio-marron-madera);
+}
+
+.btn-volver {
+  background: none;
+  border: 1px solid var(--patio-gris-piedra, #e0e0e0);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--patio-texto-secundario);
+  transition: all 0.2s;
+}
+
+.btn-volver:hover {
+  background-color: var(--patio-verde-suave);
+  border-color: var(--patio-verde-pasto);
+  color: var(--patio-verde-pasto);
+}
+
+/* Mensajes */
+.mensaje-exito {
+  background-color: #d4edda;
+  color: #155724;
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid #c3e6cb;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.mensaje-exito-acciones {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xs);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #155724;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-link:hover {
+  color: white;
+  background-color: #155724;
+  text-decoration: none;
+}
+
+.mensaje-error-general {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid #f5c6cb;
+}
+
+/* Formulario */
+.crear-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Secciones (fieldset) */
+.form-seccion {
+  border: 1px solid var(--patio-gris-piedra, #e0e0e0);
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  margin: 0;
+  background-color: #fafafa;
+}
+
+.form-seccion legend {
+  font-weight: 600;
+  color: var(--patio-marron-madera);
+  padding: 0 var(--spacing-sm);
+  font-size: 0.95rem;
+}
+
+/* Grupos de campos */
+.form-grupo {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-grupo:last-child {
+  margin-bottom: 0;
+}
+
+.form-grupo label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--patio-texto-principal);
+  font-size: 0.9rem;
+}
+
+/* Fila de campos (para campos lado a lado) */
+.form-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+/* Inputs */
+.form-grupo input,
+.form-grupo select {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--patio-gris-piedra, #e0e0e0);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: white;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus {
+  outline: none;
+  border-color: var(--patio-verde-pasto);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.form-grupo input::placeholder {
+  color: #aaa;
+}
+
+/* Input de solo lectura */
+.input-readonly {
+  background-color: #f5f5f5 !important;
+  cursor: not-allowed;
+  color: var(--patio-texto-secundario);
+}
+
+.hint-text {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--patio-texto-secundario);
+  margin-top: var(--spacing-xs);
+  font-style: italic;
+}
+
+/* Input con error */
+.input-error {
+  border-color: var(--patio-rojo-ladrillo) !important;
+}
+
+.error-texto {
+  display: block;
+  color: var(--patio-rojo-ladrillo);
+  font-size: 0.8rem;
+  margin-top: var(--spacing-xs);
+}
+
+/* Input de cédula compuesto */
+.cedula-input {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.cedula-prefijo {
+  width: 70px !important;
+  flex-shrink: 0;
+}
+
+.cedula-numero {
+  flex: 1;
+}
+
+/* Botones de acción */
+.form-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--patio-gris-piedra, #e0e0e0);
+}
+
+.btn-primario {
+  background-color: var(--patio-verde-pasto);
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background-color: var(--patio-verde-suave);
+  color: var(--patio-texto-principal);
+}
+
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secundario {
+  background-color: white;
+  color: var(--patio-texto-secundario);
+  border: 1px solid var(--patio-gris-piedra, #e0e0e0);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secundario:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.btn-secundario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .form-fila {
+    grid-template-columns: 1fr;
+  }
+
+  .form-acciones {
+    flex-direction: column-reverse;
+  }
+
+  .btn-primario,
+  .btn-secundario {
+    width: 100%;
+    text-align: center;
+  }
+}

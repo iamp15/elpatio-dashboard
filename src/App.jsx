@@ -4,6 +4,8 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Transacciones from './pages/Transacciones'
 import Configuracion from './pages/Configuracion'
+import Administracion from './pages/Administracion'
+import Perfil from './pages/Perfil'
 import MainLayout from './components/layout/MainLayout'
 import { isAuthenticated } from './services/auth'
 import webSocketService from './services/websocket'
@@ -40,6 +42,8 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="transacciones" element={<Transacciones />} />
           <Route path="configuracion" element={<Configuracion />} />
+          <Route path="administracion/*" element={<Administracion />} />
+          <Route path="perfil" element={<Perfil />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -5,7 +5,7 @@
 import Table from '../ui/Table'
 import Badge from '../ui/Badge'
 import Button from '../ui/Button'
-import { formatCurrency, formatDate, getBadgeVariant } from '../../utils/formatters'
+import { formatCurrency, formatDate, getBadgeVariant, formatEstado } from '../../utils/formatters'
 
 /**
  * Componente para mostrar la lista de transacciones
@@ -47,7 +47,7 @@ function TransaccionesList({ transacciones, onVerDetalles }) {
             <Table.Cell className="text-right">{formatCurrency(trans.monto)}</Table.Cell>
             <Table.Cell>
               <Badge variant={getBadgeVariant(trans.estado)}>
-                {trans.estado.replace('_', ' ')}
+                {formatEstado(trans.estado)}
               </Badge>
             </Table.Cell>
             <Table.Cell>{formatDate(trans.createdAt)}</Table.Cell>

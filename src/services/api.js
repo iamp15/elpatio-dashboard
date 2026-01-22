@@ -138,6 +138,15 @@ export const updatePaymentConfig = async (configType, configKey, configValue) =>
 }
 
 /**
+ * Inicializar configuraciones por defecto de PaymentConfig
+ */
+export const initializePaymentConfig = async () => {
+  return request('/api/payment-config/initialize', {
+    method: 'POST',
+  })
+}
+
+/**
  * Obtener configuración del sistema
  */
 export const getConfig = async (clave) => {
@@ -159,4 +168,91 @@ export const updateConfig = async (clave, valor) => {
  */
 export const getAllConfigs = async () => {
   return request('/api/config')
+}
+
+/**
+ * Obtener perfil del admin autenticado
+ */
+export const getMiPerfil = async () => {
+  return request('/api/admin/mi-perfil')
+}
+
+// ==========================================
+// GESTIÓN DE CAJEROS
+// ==========================================
+
+/**
+ * Obtener todos los cajeros
+ */
+export const getCajeros = async () => {
+  return request('/api/cajeros')
+}
+
+/**
+ * Crear un nuevo cajero
+ */
+export const crearCajero = async (datosCajero) => {
+  return request('/api/cajeros', {
+    method: 'POST',
+    body: JSON.stringify(datosCajero),
+  })
+}
+
+/**
+ * Modificar un cajero
+ */
+export const modificarCajero = async (id, datosCajero) => {
+  return request(`/api/cajeros/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(datosCajero),
+  })
+}
+
+/**
+ * Eliminar un cajero
+ */
+export const eliminarCajero = async (id) => {
+  return request(`/api/cajeros/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// ==========================================
+// GESTIÓN DE ADMINS
+// ==========================================
+
+/**
+ * Obtener todos los admins
+ */
+export const getAdmins = async () => {
+  return request('/api/admin')
+}
+
+/**
+ * Crear un nuevo admin
+ */
+export const crearAdmin = async (datosAdmin) => {
+  return request('/api/admin', {
+    method: 'POST',
+    body: JSON.stringify(datosAdmin),
+  })
+}
+
+/**
+ * Modificar un admin
+ */
+export const modificarAdmin = async (id, datosAdmin) => {
+  return request(`/api/admin/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(datosAdmin),
+  })
+}
+
+/**
+ * Eliminar un admin
+ */
+export const eliminarAdmin = async (id) => {
+  return request(`/api/admin/${id}`, {
+    method: 'DELETE',
+  })
 }

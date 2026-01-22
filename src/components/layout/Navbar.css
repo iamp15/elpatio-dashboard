@@ -1,0 +1,81 @@
+/* Estilos del componente Navbar */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  flex: 1;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--patio-marron-madera);
+  text-decoration: none;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.navbar-links {
+  display: flex;
+  gap: var(--spacing-md);
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-link,
+.nav-link:link,
+.nav-link:visited {
+  color: var(--patio-texto-principal) !important;
+  text-decoration: none !important;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+/* Hover para botones normales (no activos) */
+.nav-link:hover:not(.nav-link-active) {
+  background-color: var(--patio-verde-suave) !important;
+  color: var(--patio-verde-pasto) !important;
+}
+
+.nav-link.nav-link-active,
+.nav-link.nav-link-active:link,
+.nav-link.nav-link-active:visited {
+  background-color: var(--patio-verde-pasto) !important;
+  color: #ffffff !important;
+}
+
+/* Hover para botones activos - cambiar texto a marrón para contraste */
+.nav-link.nav-link-active:hover,
+.nav-link.nav-link-active:focus,
+.nav-link.nav-link-active:active {
+  background-color: var(--patio-verde-suave) !important;
+  color: var(--patio-texto-principal) !important;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    width: 100%;
+  }
+
+  .navbar-links {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .nav-link {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+  }
+}

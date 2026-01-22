@@ -1,0 +1,41 @@
+/* Estilos de la sección de Cajeros */
+/* Reutiliza los estilos de AdminsSection ya que son idénticos */
+
+.cajeros-section {
+  width: 100%;
+}
+
+.cajeros-section .section-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.cajeros-section .section-header h2 {
+  font-size: 1.4rem;
+  color: var(--patio-marron-madera);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.cajeros-section .section-header p {
+  color: var(--patio-texto-secundario);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Botón volver inline en header */
+.btn-volver-inline {
+  background: none;
+  border: 1px solid var(--patio-gris-piedra, #e0e0e0);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--patio-texto-secundario);
+  transition: all 0.2s;
+  margin-bottom: var(--spacing-md);
+}
+
+.btn-volver-inline:hover {
+  background-color: var(--patio-verde-suave);
+  border-color: var(--patio-verde-pasto);
+  color: var(--patio-verde-pasto);
+}

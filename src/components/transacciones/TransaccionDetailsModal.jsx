@@ -4,7 +4,7 @@
 
 import Badge from '../ui/Badge'
 import Button from '../ui/Button'
-import { formatCurrency, formatDate, getBadgeVariant } from '../../utils/formatters'
+import { formatCurrency, formatDate, getBadgeVariant, formatEstado } from '../../utils/formatters'
 
 /**
  * Modal con detalles de transacción
@@ -57,7 +57,7 @@ function TransaccionDetailsModal({ transaccion, isOpen, onClose }) {
             <div className="detalle-item">
               <label>Estado:</label>
               <Badge variant={getBadgeVariant(transaccion.estado)}>
-                {transaccion.estado.replace('_', ' ')}
+                {formatEstado(transaccion.estado)}
               </Badge>
             </div>
             <div className="detalle-item">

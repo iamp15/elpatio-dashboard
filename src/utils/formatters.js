@@ -63,14 +63,39 @@ export function getBadgeVariant(estado) {
   const map = {
     pendiente: 'pending',
     en_proceso: 'warning',
+    realizada: 'info',
+    confirmada: 'success',
     completada: 'completed',
     completada_con_ajuste: 'success',
     rechazada: 'rejected',
     cancelada: 'cancelled',
     fallida: 'danger',
     revertida: 'default',
+    requiere_revision_admin: 'warning',
   }
   return map[estado] || 'default'
+}
+
+/**
+ * Formatea el estado de una transacción para mostrar de manera legible
+ * @param {string} estado - Estado de la transacción
+ * @returns {string} Estado formateado
+ */
+export function formatEstado(estado) {
+  const map = {
+    pendiente: 'Pendiente',
+    en_proceso: 'En Proceso',
+    realizada: 'Realizada',
+    confirmada: 'Confirmada',
+    completada: 'Completada',
+    completada_con_ajuste: 'Completada con Ajuste',
+    rechazada: 'Rechazada',
+    cancelada: 'Cancelada',
+    fallida: 'Fallida',
+    revertida: 'Revertida',
+    requiere_revision_admin: 'Requiere Revisión Admin',
+  }
+  return map[estado] || estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
 /**

@@ -171,6 +171,41 @@
   justify-content: flex-end;
 }
 
+/* Tabs */
+.configuracion-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--patio-gris-piedra);
+}
+
+.configuracion-tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: -2px;
+}
+
+.configuracion-tab:hover {
+  color: var(--patio-marron-madera);
+  background-color: var(--patio-verde-suave);
+}
+
+.configuracion-tab-active {
+  color: var(--patio-marron-madera);
+  border-bottom-color: var(--patio-verde-pasto);
+}
+
+.configuracion-tab-content {
+  margin-top: 20px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .configuracion-page {
@@ -183,5 +218,22 @@
 
   .config-card {
     padding: 15px;
+  }
+
+  .configuracion-tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .configuracion-tab {
+    text-align: left;
+    border-bottom: 1px solid var(--patio-gris-piedra);
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+  }
+
+  .configuracion-tab-active {
+    border-bottom-color: var(--patio-gris-piedra);
+    border-left-color: var(--patio-verde-pasto);
   }
 }
